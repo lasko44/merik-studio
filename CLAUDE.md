@@ -70,6 +70,88 @@ Reusable Vue components for the page builder:
 
 ---
 
+# Git Workflow & Versioning
+
+**IMPORTANT**: All commits must follow Conventional Commits format. See [.github/VERSION_CONTROL.md](.github/VERSION_CONTROL.md) for complete documentation.
+
+## Branching Strategy
+
+```
+main (production) ←── PR ←── develop (integration) ←── PR ←── feature/*
+       │                           ↑
+       └────── auto cascade ───────┘
+```
+
+- **main**: Production releases, protected, triggers automatic releases
+- **develop**: Integration branch, protected
+- **feature/*** | **fix/*** | **chore/***: Work branches
+
+## Commit Message Format
+
+```
+<type>(<scope>): <description>
+```
+
+### Types (MUST use one of these)
+
+| Type | Description | Version Bump |
+|------|-------------|--------------|
+| `feat` | New feature | Minor (1.x.0) |
+| `fix` | Bug fix | Patch (1.0.x) |
+| `perf` | Performance improvement | Patch |
+| `docs` | Documentation only | None |
+| `style` | Code formatting | None |
+| `refactor` | Code refactoring | None |
+| `test` | Adding tests | None |
+| `chore` | Maintenance | None |
+| `ci` | CI/CD changes | None |
+
+### Breaking Changes
+
+Add `!` after type for breaking changes (triggers major version bump):
+```bash
+feat!: redesign authentication API
+```
+
+### Examples
+
+```bash
+# Feature
+git commit -m "feat(auth): add user invitation system"
+
+# Bug fix
+git commit -m "fix(pages): resolve duplicate slug generation"
+
+# Breaking change
+git commit -m "feat(api)!: change response format"
+
+# Chore
+git commit -m "chore(deps): update Laravel to 12.1"
+```
+
+## Creating Commits
+
+When asked to commit changes:
+
+1. **Stage changes**: `git add -A`
+2. **Write conventional commit message** following the format above
+3. **Include Co-Authored-By**:
+   ```
+   Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
+   ```
+
+## Version File
+
+Current version is tracked in `version.json`:
+```json
+{
+    "version": "1.0.0-beta.1",
+    "release_date": "2026-03-08"
+}
+```
+
+---
+
 # Project Coding Standards
 
 This document defines the architectural decisions and coding standards for this project. All code must follow these guidelines.
