@@ -1,0 +1,71 @@
+name: Cascade Merge
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  cascade-to-develop:
+    name: Merge main → develop
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Merge main into develop
+        run: |
+          git checkout develop
+          git pull origin develop
+
+          # Attempt to merge main into develop
+          if git merge origin/main --no-edit; then
+            echo "Merge successful"
+            git push origin develop
+          else
+            echo "Merge conflict detected - creating PR instead"
+
+            # Abort the failed merge
+            git merge --abort
+
+            # Create a branch for the PR
+            BRANCH_NAME="cascade/main-to-develop-$(date +%Y%m%d-%H%M%S)"
+            git checkout -b "$BRANCH_NAME" origin/main
+            git push origin "$BRANCH_NAME"
+
+            # Create PR using gh CLI
+            gh pr create \
+              --base develop \
+              --head "$BRANCH_NAME" \
+              --title "chore: cascade merge main → develop" \
+              --body "$(cat <<'EOF'
+          ## Automatic Cascade Merge
+
+          This PR was automatically created because a merge conflict occurred while cascading changes from `main` to `develop`.
+
+          ### What happened?
+          Changes were pushed to `main` (likely a hotfix or release), and the automatic merge to `develop` failed due to conflicts.
+
+          ### What to do?
+          1. Resolve the conflicts in this PR
+          2. Merge this PR to keep `develop` in sync with `main`
+
+          ---
+          🤖 This PR was created automatically by the cascade-merge workflow.
+          EOF
+          )"
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
