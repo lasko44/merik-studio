@@ -1,0 +1,64 @@
+name: Commit Lint
+
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  commitlint:
+    name: Validate Commits
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check commit messages
+        run: |
+          # Get commits in this PR
+          COMMITS=$(git log origin/main..HEAD --pretty=format:"%s" 2>/dev/null || echo "")
+
+          if [ -z "$COMMITS" ]; then
+            echo "No commits to check"
+            exit 0
+          fi
+
+          echo "Checking commit messages..."
+          echo ""
+
+          VALID_TYPES="feat|fix|perf|docs|style|refactor|test|chore|ci|build|revert"
+          ERRORS=0
+
+          while IFS= read -r commit; do
+            # Skip merge commits
+            if [[ "$commit" =~ ^Merge ]]; then
+              continue
+            fi
+
+            # Check format: type(scope): description or type: description
+            if [[ "$commit" =~ ^($VALID_TYPES)(\(.+\))?!?:[[:space:]].+ ]]; then
+              echo "✓ $commit"
+            else
+              echo "✗ $commit"
+              echo "  Invalid format. Expected: type(scope): description"
+              ERRORS=$((ERRORS + 1))
+            fi
+          done <<< "$COMMITS"
+
+          echo ""
+
+          if [ $ERRORS -gt 0 ]; then
+            echo "Found $ERRORS invalid commit(s)"
+            echo ""
+            echo "Valid types: feat, fix, perf, docs, style, refactor, test, chore, ci, build, revert"
+            echo "Format: type(scope): description"
+            echo "Example: feat(auth): add user invitation system"
+            echo ""
+            echo "See .github/COMMIT_CONVENTION.md for details"
+            exit 1
+          else
+            echo "All commits follow the convention!"
+          fi

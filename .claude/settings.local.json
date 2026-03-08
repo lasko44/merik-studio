@@ -1,0 +1,31 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install)",
+      "Bash(grep:*)",
+      "Bash(php artisan migrate:*)",
+      "Bash(php artisan db:seed:*)",
+      "Bash(php artisan route:list:*)",
+      "Bash(lsof:*)",
+      "Bash(curl:*)",
+      "Bash(php artisan:*)",
+      "Bash(npm install:*)",
+      "Bash(composer require:*)",
+      "Bash(npm run build:*)",
+      "Bash(pkill:*)",
+      "Bash(npx vite build:*)",
+      "Bash(xargs cat:*)",
+      "Bash(php -m:*)",
+      "Bash(php -r:*)",
+      "Bash(php --ini:*)",
+      "Bash(find:*)",
+      "WebFetch(domain:127.0.0.1)",
+      "Bash(php -l:*)",
+      "Bash(ls:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npm run test:run:*)",
+      "Bash(./vendor/bin/pest:*)",
+      "Bash(git add:*)"
+    ]
+  }
+}
